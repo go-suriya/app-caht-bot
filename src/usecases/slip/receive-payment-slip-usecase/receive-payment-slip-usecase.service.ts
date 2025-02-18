@@ -3,12 +3,14 @@ import { Injectable } from '@nestjs/common';
 import { SlipUserEntity } from 'src/database/entities/slip/SlipUserEntity';
 import { LineRepositoryService } from 'src/repositories/line-repository/line-repository.service';
 import { SlipUserRepositoryService } from 'src/repositories/slip-user-repository/slip-user-repository.service';
+import { Slip2goRepositoryService } from 'src/repositories/slip2go-repository/slip2go-repository.service';
 
 @Injectable()
 export class ReceivePaymentSlipUsecaseService {
   constructor(
     private readonly lineRepositoryService: LineRepositoryService,
     private readonly slipUserRepositoryService: SlipUserRepositoryService,
+    private readonly slip2goRepositoryService: Slip2goRepositoryService,
   ) {}
 
   async execute(messages: EventMessage, event: WebhookEvent) {
@@ -19,6 +21,9 @@ export class ReceivePaymentSlipUsecaseService {
     const binary = await this.lineRepositoryService
       .getClient()
       .getMessageContent(messages.id);
+
+    const res = await this.slip2goRepositoryService.qrImage(binary);
+    console.log('res =>', JSON.stringify(res));
   }
 
   private async handleUserProfile(event: WebhookEvent): Promise<void> {

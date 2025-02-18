@@ -1,0 +1,161 @@
+{
+  "type": "bubble",
+  "body": {
+    "type": "box",
+    "layout": "vertical",
+    "contents": [
+      {
+        "type": "box",
+        "layout": "horizontal",
+        "contents": [
+          {
+            "type": "image",
+            "url": "https://cdn.pic.in.th/file/picinth/smartphone.th.png",
+            "size": "xxs",
+            "margin": "xxl",
+            "align": "start"
+          },
+          {
+            "type": "text",
+            "text": "รายการโอน/ถอน                        ",
+            "weight": "bold",
+            "position": "absolute",
+            "color": "#4AA65A",
+            "size": "lg",
+            "offsetEnd": "xxl",
+            "offsetTop": "md"
+          }
+        ]
+      },
+      {
+        "type": "separator",
+        "margin": "xxl"
+      },
+      {
+        "type": "box",
+        "layout": "vertical",
+        "margin": "xxl",
+        "spacing": "sm",
+        "contents": [
+          {
+            "type": "box",
+            "layout": "horizontal",
+            "contents": [
+              {
+                "type": "text",
+                "text": "จากบัญชี",
+                "size": "md",
+                "color": "#555555"
+              },
+              {
+                "type": "text",
+                "text": "xxx-x-x5380-x",
+                "size": "md",
+                "color": "#111111",
+                "align": "end"
+              }
+            ]
+          },
+          {
+            "type": "box",
+            "layout": "horizontal",
+            "contents": [
+              {
+                "type": "text",
+                "text": "วันที่",
+                "size": "md",
+                "color": "#555555"
+              },
+              {
+                "type": "text",
+                "text": "31 ส.ค. 66",
+                "size": "md",
+                "color": "#111111",
+                "align": "end"
+              }
+            ]
+          },
+          {
+            "type": "box",
+            "layout": "horizontal",
+            "contents": [
+              {
+                "type": "text",
+                "text": "เวลา",
+                "size": "md",
+                "color": "#555555"
+              },
+              {
+                "type": "text",
+                "text": "15:15",
+                "size": "md",
+                "color": "#111111",
+                "align": "end"
+              }
+            ]
+          },
+          {
+            "type": "box",
+            "layout": "horizontal",
+            "contents": [
+              {
+                "type": "text",
+                "text": "จำนวนเงิน",
+                "size": "md",
+                "color": "#555555"
+              },
+              {
+                "type": "text",
+                "text": "-500.00 บาท",
+                "size": "md",
+                "color": "#ff5551",
+                "align": "end"
+              }
+            ]
+          },
+          {
+            "type": "separator",
+            "margin": "xxl"
+          },
+          {
+            "type": "box",
+            "layout": "horizontal",
+            "contents": [
+              {
+                "type": "text",
+                "text": "ยอดเงินในบัญชี",
+                "size": "md",
+                "color": "#555555",
+                "weight": "bold"
+              },
+              {
+                "type": "text",
+                "text": "499.56 บาท",
+                "size": "md",
+                "color": "#111111",
+                "align": "end",
+                "margin": "md",
+                "weight": "bold"
+              }
+            ],
+            "margin": "xxl"
+          }
+        ]
+      },
+      {
+        "type": "separator",
+        "margin": "xxl"
+      },
+      {
+        "type": "button",
+        "action": {
+          "type": "uri",
+          "label": "ดูรายละเอียดที่ S PLUS",
+          "uri": "http://linecorp.com/"
+        },
+        "style": "primary",
+        "color": "#4AA65A"
+      }
+    ]
+  }
+}

@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
 import { FilePathEnv } from 'src/types/file-path-env';
+import { TypeGroup } from 'src/types/type-group.enum';
 import { Column, Entity, Index } from 'typeorm';
 import { DefaultEntity } from '../default.entity';
 
@@ -17,7 +18,6 @@ export class SlipGroupEntity extends DefaultEntity {
   @Column({ name: 'group_name', nullable: true })
   group_name: string;
 
-  @Column({ name: 'status' })
-  status: string;
-
+  @Column({ name: 'type', enum: TypeGroup })
+  type: TypeGroup;
 }

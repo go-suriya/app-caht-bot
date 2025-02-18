@@ -14,6 +14,10 @@ export class SlipUserEntity extends DefaultEntity {
   @Index()
   line_user_id: string;
 
+  @Column({ name: 'line_group_id' })
+  @Index()
+  line_group_id: string;
+
   @Column({ name: 'display_name' })
   display_name: string;
 }

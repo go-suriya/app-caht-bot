@@ -8,4 +8,7 @@ export enum ApiPath {
   // Slip2Go
   Slip2GoQrCode = '/qr-code',
   Slip2GoQrImage = '/qr-image',
+
+  //
+  EasySlipVerify = '/api/v1/verify',
 }

@@ -11,7 +11,7 @@ export class ReceivePaymentSlipUsecaseService {
     private readonly slipUserRepositoryService: SlipUserRepositoryService,
   ) {}
 
-  async execute(userId: string, messages: EventMessage, event: WebhookEvent) {
+  async execute(messages: EventMessage, event: WebhookEvent) {
     // Handle user profile
     await this.handleUserProfile(event);
 

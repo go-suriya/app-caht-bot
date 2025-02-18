@@ -27,7 +27,6 @@ export class WebhookService {
           const eventMessage = event?.message;
           if (eventMessage?.type === 'image') {
             await this.receivePaymentSlipUsecaseService.execute(
-              userId,
               eventMessage,
               event,
             );

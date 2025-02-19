@@ -4,6 +4,7 @@ import { SlipUserEntity } from 'src/database/entities/slip/SlipUserEntity';
 import { LineRepositoryService } from 'src/repositories/line-repository/line-repository.service';
 import { SlipUserRepositoryService } from 'src/repositories/slip-user-repository/slip-user-repository.service';
 import { Slip2goRepositoryService } from 'src/repositories/slip2go-repository/slip2go-repository.service';
+import * as Types from '@line/bot-sdk/lib/types';
 
 @Injectable()
 export class ReceivePaymentSlipUsecaseService {
@@ -11,24 +12,40 @@ export class ReceivePaymentSlipUsecaseService {
     private readonly lineRepositoryService: LineRepositoryService,
     private readonly slipUserRepositoryService: SlipUserRepositoryService,
     private readonly slip2goRepositoryService: Slip2goRepositoryService,
-  ) {}
+  ) {
+  }
 
-  async execute(messages: EventMessage, event: WebhookEvent) {
-    // Handle user profile
-    await this.handleUserProfile(event);
-
+  async execute(messageId: String, replyToken: string, event: WebhookEvent) {
     // Handle image message
     const binary = await this.lineRepositoryService
       .getClient()
-      .getMessageContent(messages.id);
+      .getMessageContent(messageId);
 
     const res = await this.slip2goRepositoryService.qrImage(binary);
     console.log('res =>', JSON.stringify(res));
+
+    const messages = this.handleSendMessage();
+    await this.lineRepositoryService.getClient().replyMessage(replyToken, messages);
+  }
+
+  private handleSendMessage() {
+    const messages: Types.Message | Types.Message[] = [
+      {
+        type: 'text',
+        text: 'TEST',
+      },
+      // {
+      //   type: 'image',
+      //   originalContentUrl: 'imageUrl',
+      //   previewImageUrl: 'imageUrl',
+      // },
+    ];
+
+    return messages;
   }
 
   private async handleUserProfile(event: WebhookEvent): Promise<void> {
-    if (event.source?.type !== 'group') return;
-
+    // Handle user profile
     const { userId, groupId } = event?.source ?? {};
     if (!userId || !groupId) return;
 

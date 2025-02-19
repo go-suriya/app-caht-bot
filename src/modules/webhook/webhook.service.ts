@@ -1,14 +1,19 @@
 import { WebhookRequestBody } from '@line/bot-sdk';
 import { Injectable } from '@nestjs/common';
-import { ReceivePaymentSlipUsecaseService } from 'src/usecases/slip/receive-payment-slip-usecase/receive-payment-slip-usecase.service';
-import { CreateSlipGroupUsecaseService } from '../../usecases/slip-group/create-slip-group-usecase/create-slip-group-usecase.service';
+import {
+  ReceivePaymentSlipUsecaseService,
+} from 'src/usecases/slip/receive-payment-slip-usecase/receive-payment-slip-usecase.service';
+import {
+  CreateSlipGroupUsecaseService,
+} from '../../usecases/slip-group/create-slip-group-usecase/create-slip-group-usecase.service';
 
 @Injectable()
 export class WebhookService {
   constructor(
     private readonly receivePaymentSlipUsecaseService: ReceivePaymentSlipUsecaseService,
     private readonly createSlipGroupUsecaseService: CreateSlipGroupUsecaseService,
-  ) {}
+  ) {
+  }
 
   async handleWebhook(body: WebhookRequestBody) {
     if (!body || !body?.events) {
@@ -26,16 +31,20 @@ export class WebhookService {
         case 'message':
           const eventMessage = event?.message;
           if (eventMessage?.type === 'image') {
+            const messageId = event.message.id;
+            const replyToken = event.replyToken;
             await this.receivePaymentSlipUsecaseService.execute(
-              eventMessage,
+              messageId,
+              replyToken,
               event,
             );
           }
           break;
         case 'join':
           if (event.source?.type === 'group') {
+            const groupId = event.source.groupId;
             await this.createSlipGroupUsecaseService.execute(
-              event?.source?.groupId,
+              groupId,
             );
           }
 

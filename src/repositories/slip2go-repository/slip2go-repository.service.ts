@@ -15,7 +15,7 @@ export class Slip2goRepositoryService {
     });
   }
 
-  async qrCode(qrCode: string) {
+  async qrCode(qrCode: string): Promise<ISlip2GoResponse> {
     const path = ApiPath.Slip2GoQrCode;
 
     const data = {
@@ -34,11 +34,11 @@ export class Slip2goRepositoryService {
       data,
       config,
     );
-    
+
     return result?.data;
   }
 
-  async qrImage(binary: Readable) {
+  async qrImage(binary: Readable): Promise<ISlip2GoResponse> {
     const path = ApiPath.Slip2GoQrImage;
 
     const data = new FormData();

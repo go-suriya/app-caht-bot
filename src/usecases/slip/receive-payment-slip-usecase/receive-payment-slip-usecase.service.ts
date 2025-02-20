@@ -1,10 +1,10 @@
-import { EventMessage, WebhookEvent } from '@line/bot-sdk';
+import * as Types from '@line/bot-sdk/lib/types';
 import { Injectable } from '@nestjs/common';
-import { SlipUserEntity } from 'src/database/entities/slip/SlipUserEntity';
+import { CloudinaryRepositoryService } from 'src/repositories/cloudinary-repository/cloudinary-repository.service';
 import { LineRepositoryService } from 'src/repositories/line-repository/line-repository.service';
 import { SlipUserRepositoryService } from 'src/repositories/slip-user-repository/slip-user-repository.service';
 import { Slip2goRepositoryService } from 'src/repositories/slip2go-repository/slip2go-repository.service';
-import * as Types from '@line/bot-sdk/lib/types';
+import { Slip2GoResponseSuccessCode } from 'src/types/slip2go-response-code.enum';
 
 @Injectable()
 export class ReceivePaymentSlipUsecaseService {
@@ -12,39 +12,86 @@ export class ReceivePaymentSlipUsecaseService {
     private readonly lineRepositoryService: LineRepositoryService,
     private readonly slipUserRepositoryService: SlipUserRepositoryService,
     private readonly slip2goRepositoryService: Slip2goRepositoryService,
-  ) {
-  }
+    private readonly cloudinaryRepositoryService: CloudinaryRepositoryService,
+  ) {}
 
-  async execute(messageId: String, replyToken: string, event: WebhookEvent) {
+  async execute(messageId: string, replyToken: string, userId: string) {
     // Handle image message
-    const binary = await this.lineRepositoryService
-      .getClient()
-      .getMessageContent(messageId);
+    const client = this.lineRepositoryService.getClient();
+    const binary = await client.getMessageContent(messageId);
 
-    const res = await this.slip2goRepositoryService.qrImage(binary);
-    console.log('res =>', JSON.stringify(res));
+    // Process QR Image
+    const slipResponse = await this.slip2goRepositoryService.qrImage(binary);
+    console.log('slipResponse  =>', slipResponse);
 
-    const messages = this.handleSendMessage();
-    await this.lineRepositoryService.getClient().replyMessage(replyToken, messages);
-  }
+    const code = slipResponse?.code as Slip2GoResponseSuccessCode;
 
-  private handleSendMessage() {
+    if (
+      code !== Slip2GoResponseSuccessCode.SUCCESS &&
+      code !== Slip2GoResponseSuccessCode.INVALID_RECIPIENT_ACCOUNT
+    ) {
+      // Send failure message
+      await client.replyMessage(replyToken, {
+        type: 'text',
+        text: this.getSuccessMessage(code),
+      });
+      return;
+    }
+
+    console.log('Processing valid slip...');
+
+    const cloudinaryUpload =
+      await this.cloudinaryRepositoryService.uploadStream(binary);
+
+    console.log('cloudinaryUpload =>', cloudinaryUpload);
+
+    const prepareUser = await client.getProfile(userId);
+
+    const responseData = {
+      lineName: prepareUser.displayName,
+      senderAccountName: slipResponse.data?.sender.account.name,
+      amount: slipResponse.data?.amount,
+      url: cloudinaryUpload?.url,
+      secureUrl: cloudinaryUpload?.secure_url,
+    };
+
+    console.log('Prepared Response Data =>', responseData);
+
+    // Construct message
     const messages: Types.Message | Types.Message[] = [
       {
         type: 'text',
-        text: 'TEST',
+        text: `ชื่อไลน์ : ${responseData.lineName}\nชื่อบัญชีผู้ส่ง : ${responseData.senderAccountName}\nจำนวนเงิน : ${responseData.amount} บาท`,
       },
-      // {
-      //   type: 'image',
-      //   originalContentUrl: 'imageUrl',
-      //   previewImageUrl: 'imageUrl',
-      // },
+      {
+        type: 'image',
+        originalContentUrl: responseData.secureUrl,
+        previewImageUrl: responseData.secureUrl,
+      },
     ];
 
-    return messages;
+    // Send response
+    await client.replyMessage(replyToken, messages);
   }
 
-  private async handleUserProfile(event: WebhookEvent): Promise<void> {
+  private getSuccessMessage(code: Slip2GoResponseSuccessCode) {
+    const messages: Record<Slip2GoResponseSuccessCode, string> = {
+      [Slip2GoResponseSuccessCode.SUCCESS]: 'สำเร็จ',
+      [Slip2GoResponseSuccessCode.CANNOT_VERIFY_RECEIPT]:
+        'ไม่สามารถตรวจสอบสลิปได้',
+      [Slip2GoResponseSuccessCode.RECEIPT_NOT_FOUND]: 'ไม่พบสลิป',
+      [Slip2GoResponseSuccessCode.INVALID_QR_CODE]: 'QR Code ไม่ถูกต้อง',
+      [Slip2GoResponseSuccessCode.INVALID_RECIPIENT_ACCOUNT]:
+        'บัญชีผู้รับไม่ตรงในระบบ',
+      [Slip2GoResponseSuccessCode.DUPLICATE_RECEIPT]: 'สลิปซ้ำ',
+      [Slip2GoResponseSuccessCode.INCORRECT_RECEIPT_INFO]:
+        'ข้อมูลสลิปไม่ถูกต้อง',
+    };
+
+    return messages[code] || 'ไม่ทราบสถานะ';
+  }
+
+  /*private async handleUserProfile(event: WebhookEvent): Promise<void> {
     // Handle user profile
     const { userId, groupId } = event?.source ?? {};
     if (!userId || !groupId) return;
@@ -70,5 +117,5 @@ export class ReceivePaymentSlipUsecaseService {
     slipUser.created_by = displayName;
 
     await this.slipUserRepositoryService.create(slipUser);
-  }
+  }*/
 }

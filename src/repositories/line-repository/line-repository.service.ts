@@ -32,7 +32,7 @@ export class LineRepositoryService {
 
     const data = {
       chatId: userId,
-      loadingSeconds: 30,
+      loadingSeconds: 40,
     };
 
     const config = {
@@ -42,7 +42,14 @@ export class LineRepositoryService {
       },
     };
 
-    await this.axiosLine.post(path, data, config);
+    await this.axiosLine
+      .post(path, data, config)
+      .then((res) => {
+        console.log('Loading response:', res.data);
+      })
+      .catch((err) => {
+        console.error('Loading error:', err);
+      });
   }
 
   async getMessageContent(messageId: string) {

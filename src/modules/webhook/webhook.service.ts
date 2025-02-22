@@ -15,7 +15,7 @@ export class WebhookService {
 
   async loading(userId: string) {
     try {
-      const response = await axios({
+      await axios({
         method: 'post',
         url: 'https://api.line.me/v2/bot/chat/loading/start',
         headers: {
@@ -24,9 +24,7 @@ export class WebhookService {
         },
         data: { chatId: userId },
       });
-      console.log('LINE API Response Code:', response.status); // Log response code
-      console.log('LINE API Response Data:', response.data); // Log response data
-      return response.data;
+      return true;
     } catch (error) {
       console.error('LINE API Error:', error.response?.data || error.message);
       throw error;
@@ -43,10 +41,12 @@ export class WebhookService {
     for (const event of events) {
       console.log('event =>', event);
 
-      const userId = event.source?.userId as string;
-      console.log('userId =>', userId);
+      const userId = event?.source?.userId as string;
 
-      await this.loading(userId);
+      if (userId) {
+        await this.lineRepositoryService.loading(userId);
+      }
+
       switch (event?.type) {
         case 'message':
           const eventMessage = event?.message;

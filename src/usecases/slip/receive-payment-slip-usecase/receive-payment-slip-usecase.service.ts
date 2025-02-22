@@ -18,10 +18,11 @@ export class ReceivePaymentSlipUsecaseService {
   async execute(messageId: string, replyToken: string, userId: string) {
     // Handle image message
     const client = this.lineRepositoryService.getClient();
-    const binary = await client.getMessageContent(messageId);
+    const binaryToSlip = await client.getMessageContent(messageId);
 
     // Process QR Image
-    const slipResponse = await this.slip2goRepositoryService.qrImage(binary);
+    const slipResponse =
+      await this.slip2goRepositoryService.qrImage(binaryToSlip);
     console.log('slipResponse  =>', slipResponse);
 
     const code = slipResponse?.code as Slip2GoResponseSuccessCode;
@@ -40,8 +41,9 @@ export class ReceivePaymentSlipUsecaseService {
 
     console.log('Processing valid slip...');
 
+    const binaryToCloudinary = await client.getMessageContent(messageId);
     const cloudinaryUpload =
-      await this.cloudinaryRepositoryService.uploadStream(binary);
+      await this.cloudinaryRepositoryService.uploadStream(binaryToCloudinary);
 
     console.log('cloudinaryUpload =>', cloudinaryUpload);
 

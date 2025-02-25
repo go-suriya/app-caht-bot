@@ -44,7 +44,7 @@ export class WebhookService {
         case 'join':
           if (event?.source?.type === 'group') {
             const groupId = event.source?.groupId;
-            await this.createSlipGroupUsecaseService.execute(groupId);
+            // await this.createSlipGroupUsecaseService.execute(groupId);
           }
 
           break;

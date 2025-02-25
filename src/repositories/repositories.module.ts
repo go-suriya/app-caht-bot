@@ -1,8 +1,4 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { DatabaseModule } from 'src/database/database.module';
-import { SlipUserEntity } from 'src/database/entities/slip/SlipUserEntity';
-import { SlipGroupEntity } from '../database/entities/slip/SlipGroupEntity';
 import { CloudinaryRepositoryService } from './cloudinary-repository/cloudinary-repository.service';
 import { EasyslipRepositoryService } from './easyslip-repository/easyslip-repository.service';
 import { LineRepositoryService } from './line-repository/line-repository.service';
@@ -15,8 +11,8 @@ import { SlipokRepositoryService } from './slipok-repository/slipok-repository.s
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([SlipUserEntity, SlipGroupEntity]),
-    DatabaseModule,
+    // TypeOrmModule.forFeature([SlipUserEntity, SlipGroupEntity]),
+    // DatabaseModule,
   ],
   providers: [
     LineRepositoryService,

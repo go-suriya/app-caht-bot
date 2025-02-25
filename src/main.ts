@@ -10,6 +10,8 @@ async function bootstrap() {
 
     app.use(express.json());
 
+    app.setGlobalPrefix('api');
+
     await app.listen(process.env.PORT ?? 4000);
 
     const httpServer = app.getHttpServer();

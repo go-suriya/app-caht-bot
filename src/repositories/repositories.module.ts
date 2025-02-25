@@ -7,6 +7,7 @@ import { CloudinaryRepositoryService } from './cloudinary-repository/cloudinary-
 import { EasyslipRepositoryService } from './easyslip-repository/easyslip-repository.service';
 import { LineRepositoryService } from './line-repository/line-repository.service';
 import { PinataRepositoryService } from './pinata-repository/pinata-repository.service';
+import { PocketBaseRepositoryService } from './pocket-base-repository/pocket-base-repository.service';
 import { SlipGroupRepositoryService } from './slip-group-repository/slip-group-repository.service';
 import { SlipUserRepositoryService } from './slip-user-repository/slip-user-repository.service';
 import { Slip2goRepositoryService } from './slip2go-repository/slip2go-repository.service';
@@ -27,6 +28,7 @@ import { SlipokRepositoryService } from './slipok-repository/slipok-repository.s
     EasyslipRepositoryService,
     PinataRepositoryService,
     CloudinaryRepositoryService,
+    PocketBaseRepositoryService,
   ],
   exports: [
     LineRepositoryService,
@@ -37,6 +39,7 @@ import { SlipokRepositoryService } from './slipok-repository/slipok-repository.s
     EasyslipRepositoryService,
     PinataRepositoryService,
     CloudinaryRepositoryService,
+    PocketBaseRepositoryService,
   ],
 })
 export class RepositoriesModule {}

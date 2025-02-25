@@ -1,6 +1,5 @@
 import { WebhookRequestBody } from '@line/bot-sdk';
 import { Injectable } from '@nestjs/common';
-import axios from 'axios';
 import { LineRepositoryService } from 'src/repositories/line-repository/line-repository.service';
 import { ReceivePaymentSlipUsecaseService } from 'src/usecases/slip/receive-payment-slip-usecase/receive-payment-slip-usecase.service';
 import { CreateSlipGroupUsecaseService } from '../../usecases/slip-group/create-slip-group-usecase/create-slip-group-usecase.service';
@@ -12,24 +11,6 @@ export class WebhookService {
     private readonly createSlipGroupUsecaseService: CreateSlipGroupUsecaseService,
     private readonly lineRepositoryService: LineRepositoryService,
   ) {}
-
-  async loading(userId: string) {
-    try {
-      await axios({
-        method: 'post',
-        url: 'https://api.line.me/v2/bot/chat/loading/start',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${process.env.CHANNEL_ACCESS_TOKEN}`,
-        },
-        data: { chatId: userId },
-      });
-      return true;
-    } catch (error) {
-      console.error('LINE API Error:', error.response?.data || error.message);
-      throw error;
-    }
-  }
 
   async handleWebhook(body: WebhookRequestBody) {
     if (!body || !body?.events) {
@@ -52,7 +33,7 @@ export class WebhookService {
           const eventMessage = event?.message;
           if (eventMessage?.type === 'image') {
             const messageId = event?.message?.id;
-            const replyToken = event.replyToken;
+            const replyToken = event?.replyToken;
             await this.receivePaymentSlipUsecaseService.execute(
               messageId,
               replyToken,
@@ -61,8 +42,8 @@ export class WebhookService {
           }
           break;
         case 'join':
-          if (event.source?.type === 'group') {
-            const groupId = event.source.groupId;
+          if (event?.source?.type === 'group') {
+            const groupId = event.source?.groupId;
             await this.createSlipGroupUsecaseService.execute(groupId);
           }
 

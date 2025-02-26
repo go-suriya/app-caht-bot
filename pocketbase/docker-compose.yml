@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  db:
+    image: pocketbase:0.25.8
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./pb_data:/pb/pb_data
+    ports:
+      - "5000:8080"

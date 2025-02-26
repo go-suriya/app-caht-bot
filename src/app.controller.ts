@@ -1,5 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { PocketBaseRepositoryService } from './repositories/pocket-base-repository/pocket-base-repository.service';
+import { PocketBaseCollectionName } from './types/pocketbase-collection.enum';
 
 @Controller()
 export class AppController {
@@ -9,10 +10,8 @@ export class AppController {
 
   @Get('/users')
   async getAllUsers() {
-    // await this.pocketBaseRepositoryService.authenticate();
-    // return await this.pocketBaseRepositoryService
-    //   .collection(PocketBaseCollectionName.Users)
-    //   .getFullList();
-    return "Test OK";
+    return await this.pocketBaseRepositoryService
+      .collection(PocketBaseCollectionName.Users)
+      .getFullList();
   }
 }

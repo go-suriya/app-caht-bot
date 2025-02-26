@@ -1,18 +1,18 @@
 import * as Types from '@line/bot-sdk/lib/types';
 import { Injectable } from '@nestjs/common';
-import { CloudinaryRepositoryService } from 'src/repositories/cloudinary-repository/cloudinary-repository.service';
 import { LineRepositoryService } from 'src/repositories/line-repository/line-repository.service';
-import { SlipUserRepositoryService } from 'src/repositories/slip-user-repository/slip-user-repository.service';
+import { PocketBaseRepositoryService } from 'src/repositories/pocket-base-repository/pocket-base-repository.service';
 import { Slip2goRepositoryService } from 'src/repositories/slip2go-repository/slip2go-repository.service';
+import { PocketBaseCollectionName } from 'src/types/pocketbase-collection.enum';
 import { Slip2GoResponseSuccessCode } from 'src/types/slip2go-response-code.enum';
+import { streamToBuffer } from 'src/utils/stream-to-buffer.utils';
 
 @Injectable()
 export class ReceivePaymentSlipUsecaseService {
   constructor(
     private readonly lineRepositoryService: LineRepositoryService,
-    private readonly slipUserRepositoryService: SlipUserRepositoryService,
     private readonly slip2goRepositoryService: Slip2goRepositoryService,
-    private readonly cloudinaryRepositoryService: CloudinaryRepositoryService,
+    private readonly pocketBaseRepositoryService: PocketBaseRepositoryService,
   ) {}
 
   async execute(messageId: string, replyToken: string, userId: string) {
@@ -41,23 +41,14 @@ export class ReceivePaymentSlipUsecaseService {
 
     console.log('Processing valid slip...');
 
-    const binaryToCloudinary = await client.getMessageContent(messageId);
-    const cloudinaryUpload =
-      await this.cloudinaryRepositoryService.uploadStream(binaryToCloudinary);
-
-    console.log('cloudinaryUpload =>', cloudinaryUpload);
-
     const prepareUser = await client.getProfile(userId);
-
+    const prepareImageUrl = await this.saveSlipFile(messageId);
     const responseData = {
       lineName: prepareUser.displayName,
       senderAccountName: slipResponse.data?.sender.account.name,
       amount: slipResponse.data?.amount,
-      url: cloudinaryUpload?.url,
-      secureUrl: cloudinaryUpload?.secure_url,
+      imageUrl: prepareImageUrl,
     };
-
-    console.log('Prepared Response Data =>', responseData);
 
     // Construct message
     const messages: Types.Message | Types.Message[] = [
@@ -67,13 +58,32 @@ export class ReceivePaymentSlipUsecaseService {
       },
       {
         type: 'image',
-        originalContentUrl: responseData.secureUrl,
-        previewImageUrl: responseData.secureUrl,
+        originalContentUrl: responseData.imageUrl,
+        previewImageUrl: responseData.imageUrl,
       },
     ];
 
     // Send response
     await client.replyMessage(replyToken, messages);
+  }
+
+  private async saveSlipFile(messageId: string) {
+    const prepareMessageContent = await this.lineRepositoryService
+      .getClient()
+      .getMessageContent(messageId);
+    const buffer = await streamToBuffer(prepareMessageContent);
+
+    const data = new FormData();
+    data.append('file', new Blob([buffer]));
+
+    // Save slip to pocketbase
+    const newSlipFile = await this.pocketBaseRepositoryService
+      .collection(PocketBaseCollectionName.SlipFile)
+      .create(data, { $autoCancel: true });
+
+    const imageUrl = `${process.env.POCKETBASE_HOST}/api/files/${newSlipFile.collectionId}/${newSlipFile.id}/${newSlipFile.file}?thumb=1024x1024`;
+
+    return imageUrl;
   }
 
   private getSuccessMessage(code: Slip2GoResponseSuccessCode) {

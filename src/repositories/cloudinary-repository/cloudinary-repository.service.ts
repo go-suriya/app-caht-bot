@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 import { Readable } from 'node:stream';
+import { streamToBuffer } from 'src/utils/stream-to-buffer.utils';
 
 @Injectable()
 export class CloudinaryRepositoryService {
@@ -13,7 +14,7 @@ export class CloudinaryRepositoryService {
   }
 
   async uploadStream(readableStream: Readable): Promise<UploadApiResponse> {
-    const buffer = await this.streamToBuffer(readableStream);
+    const buffer = await streamToBuffer(readableStream);
 
     return new Promise((resolve, reject) => {
       cloudinary.uploader
@@ -38,15 +39,6 @@ export class CloudinaryRepositoryService {
           },
         )
         .end(buffer);
-    });
-  }
-
-  private async streamToBuffer(readableStream: Readable): Promise<Buffer> {
-    return new Promise((resolve, reject) => {
-      const chunks: any[] = [];
-      readableStream.on('data', (chunk) => chunks.push(chunk));
-      readableStream.on('end', () => resolve(Buffer.concat(chunks)));
-      readableStream.on('error', reject);
     });
   }
 }

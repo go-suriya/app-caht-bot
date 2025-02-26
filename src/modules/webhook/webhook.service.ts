@@ -1,8 +1,8 @@
 import { WebhookRequestBody } from '@line/bot-sdk';
 import { Injectable } from '@nestjs/common';
 import { LineRepositoryService } from 'src/repositories/line-repository/line-repository.service';
+import { CreateSlipGroupUsecaseService } from 'src/usecases/slip/create-slip-group-usecase/create-slip-group-usecase.service';
 import { ReceivePaymentSlipUsecaseService } from 'src/usecases/slip/receive-payment-slip-usecase/receive-payment-slip-usecase.service';
-import { CreateSlipGroupUsecaseService } from '../../usecases/slip-group/create-slip-group-usecase/create-slip-group-usecase.service';
 
 @Injectable()
 export class WebhookService {
@@ -44,7 +44,7 @@ export class WebhookService {
         case 'join':
           if (event?.source?.type === 'group') {
             const groupId = event.source?.groupId;
-            // await this.createSlipGroupUsecaseService.execute(groupId);
+            await this.createSlipGroupUsecaseService.execute(groupId);
           }
 
           break;

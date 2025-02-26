@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import Client, {
   RecordAuthResponse,
   RecordFullListOptions,
@@ -10,11 +10,15 @@ import { PocketBaseCollectionName } from 'src/types/pocketbase-collection.enum';
 const PocketBase = require('pocketbase/cjs');
 
 @Injectable()
-export class PocketBaseRepositoryService {
+export class PocketBaseRepositoryService implements OnModuleInit {
   private readonly pocketBase: Client;
 
   constructor() {
     this.pocketBase = new PocketBase(process.env.POCKETBASE_HOST);
+  }
+
+  async onModuleInit() {
+    await this.authenticate();
   }
 
   collection(collection: PocketBaseCollectionName): RecordService<RecordModel> {

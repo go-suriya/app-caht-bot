@@ -9,3 +9,4 @@ services:
       - ./pb_data:/pb/pb_data
     ports:
       - "5000:8080"
+    restart: unless-stopped

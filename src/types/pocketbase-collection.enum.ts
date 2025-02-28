@@ -1,7 +1,8 @@
 export enum PocketBaseCollectionName {
   Users = 'users',
   SlipFile = 'slip_file',
-  SlipGroup = 'slip_group',
+  Groups = 'groups',
+  GroupTypes = 'group_types',
 }
 
 export class Collection {

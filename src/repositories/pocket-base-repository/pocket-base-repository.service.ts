@@ -2,6 +2,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import Client, {
   RecordAuthResponse,
   RecordFullListOptions,
+  RecordListOptions,
   RecordModel,
   RecordService,
 } from 'pocketbase';
@@ -32,6 +33,16 @@ export class PocketBaseRepositoryService implements OnModuleInit {
       usernameOrEmail,
       password,
     );
+  }
+
+  async getFirstListItem(
+    collection: PocketBaseCollectionName,
+    filter: string,
+    options?: RecordListOptions,
+  ) {
+    return await this.pocketBase
+      .collection(collection)
+      .getFirstListItem(filter, options);
   }
 
   async getAllRecords(
@@ -106,9 +117,11 @@ export class PocketBaseRepositoryService implements OnModuleInit {
     collection: PocketBaseCollectionName,
     field: string,
     value: any,
-  ): Promise<RecordModel[]> {
+    expand?: string,
+  ) {
     const filter: RecordFullListOptions = {
       filter: `${field} = '${value}'`,
+      ...(expand && { expand: expand }),
     };
     return await this.pocketBase.collection(collection).getFullList(filter);
   }

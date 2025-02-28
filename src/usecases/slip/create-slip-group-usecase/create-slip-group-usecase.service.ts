@@ -10,14 +10,14 @@ export class CreateSlipGroupUsecaseService {
     private readonly lineRepositoryService: LineRepositoryService,
   ) {}
 
-  async execute(groupId: string) {
+  async execute(groupId: string, replyToken: string) {
     console.log('Creating slip group...');
 
     if (!groupId) return;
 
     const prepareSlipGroup =
       await this.pocketBaseRepositoryService.getRecordByField(
-        PocketBaseCollectionName.SlipGroup,
+        PocketBaseCollectionName.Groups,
         'line_group_id',
         groupId,
       );
@@ -36,10 +36,34 @@ export class CreateSlipGroupUsecaseService {
       group_name: groupName,
     };
 
-    const newSlipGroup = await this.pocketBaseRepositoryService
-      .collection(PocketBaseCollectionName.SlipGroup)
+    await this.pocketBaseRepositoryService
+      .collection(PocketBaseCollectionName.Groups)
       .create(data, { $autoCancel: true });
 
-    console.log('New slip group:', newSlipGroup);
+    const textMessage = await this.handelTextGroupType();
+
+    await this.lineRepositoryService.getClient().replyMessage(replyToken, [
+      {
+        type: 'text',
+        text: textMessage,
+      },
+    ]);
+  }
+
+  private async handelTextGroupType() {
+    const groupTypes = await this.pocketBaseRepositoryService
+      .collection(PocketBaseCollectionName.GroupTypes)
+      .getFullList();
+
+    if (!groupTypes?.length) {
+      return 'ไม่พบข้อมูลกลุ่ม';
+    }
+
+    const text = 'โปรดตั้งค่ากลุ่มของคุณ:';
+    const options = groupTypes?.map(
+      (group) => `#ลงทะเบียน${group?.group_type_name}`,
+    );
+    const result = `${text} ${options.join(' หรือ ')}`;
+    return result;
   }
 }

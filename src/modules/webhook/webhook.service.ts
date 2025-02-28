@@ -1,6 +1,7 @@
 import { WebhookRequestBody } from '@line/bot-sdk';
 import { Injectable } from '@nestjs/common';
 import { LineRepositoryService } from 'src/repositories/line-repository/line-repository.service';
+import { RegisterGroupUsecaseService } from 'src/usecases/line/register-group-usecase/register-group-usecase.service';
 import { CreateSlipGroupUsecaseService } from 'src/usecases/slip/create-slip-group-usecase/create-slip-group-usecase.service';
 import { ReceivePaymentSlipUsecaseService } from 'src/usecases/slip/receive-payment-slip-usecase/receive-payment-slip-usecase.service';
 
@@ -10,6 +11,7 @@ export class WebhookService {
     private readonly receivePaymentSlipUsecaseService: ReceivePaymentSlipUsecaseService,
     private readonly createSlipGroupUsecaseService: CreateSlipGroupUsecaseService,
     private readonly lineRepositoryService: LineRepositoryService,
+    private readonly registerGroupUsecaseService: RegisterGroupUsecaseService,
   ) {}
 
   async handleWebhook(body: WebhookRequestBody) {
@@ -31,6 +33,23 @@ export class WebhookService {
       switch (event?.type) {
         case 'message':
           const eventMessage = event?.message;
+
+          if (eventMessage.type === 'text' && event.message.type === 'text') {
+            if (
+              event.message.text.startsWith('#ลงทะเบียน') &&
+              event.source.type === 'group'
+            ) {
+              const groupId = event.source?.groupId;
+              const replyToken = event?.replyToken;
+              const textMessage = event?.message?.text;
+              await this.registerGroupUsecaseService.execute(
+                groupId,
+                replyToken,
+                textMessage,
+              );
+            }
+          }
+
           if (eventMessage?.type === 'image') {
             const messageId = event?.message?.id;
             const replyToken = event?.replyToken;
@@ -44,7 +63,11 @@ export class WebhookService {
         case 'join':
           if (event?.source?.type === 'group') {
             const groupId = event.source?.groupId;
-            await this.createSlipGroupUsecaseService.execute(groupId);
+            const replyToken = event?.replyToken;
+            await this.createSlipGroupUsecaseService.execute(
+              groupId,
+              replyToken,
+            );
           }
 
           break;

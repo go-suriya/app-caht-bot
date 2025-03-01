@@ -38,7 +38,7 @@ export class RegisterGroupUsecaseService {
       );
 
     const groupTypeName: string =
-      prepareGroup.expand?.group_type_id?.group_type_name;
+      prepareGroup?.expand?.group_type_id?.group_type_name;
 
     if (groupTypeName) {
       await this.lineRepositoryService.getClient().replyMessage(replyToken, {
@@ -48,7 +48,11 @@ export class RegisterGroupUsecaseService {
       return;
     }
 
-    await this.updateGroup(groupTypeName, replyToken, groupId);
+    await this.updateGroup(
+      replaceGroupTypeName,
+      replyToken,
+      prepareGroup?.id as string,
+    );
   }
 
   private async updateGroup(
@@ -62,8 +66,18 @@ export class RegisterGroupUsecaseService {
         `group_type_name="${groupTypeName}"`,
       );
 
+    if (!prepareGroupType) {
+      await this.lineRepositoryService.getClient().replyMessage(replyToken, {
+        type: 'text',
+        text: `ไม่พบข้อมูลกลุ่ม`,
+      });
+      return;
+    }
+
+    const groupTypeId = prepareGroupType?.id as string;
+
     const data = {
-      group_type_id: prepareGroupType?.id,
+      group_type_id: groupTypeId,
     };
 
     await this.pocketBaseRepositoryService

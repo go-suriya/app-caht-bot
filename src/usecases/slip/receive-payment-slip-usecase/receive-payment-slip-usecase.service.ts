@@ -44,8 +44,8 @@ export class ReceivePaymentSlipUsecaseService {
     const prepareUser = await client.getProfile(userId);
     const prepareImageUrl = await this.saveSlipFile(messageId);
     const responseData = {
-      lineName: prepareUser.displayName,
-      senderAccountName: slipResponse.data?.sender.account.name,
+      lineName: prepareUser?.displayName,
+      senderAccountName: slipResponse.data?.sender?.account?.name,
       amount: slipResponse.data?.amount,
       imageUrl: prepareImageUrl,
     };

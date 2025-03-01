@@ -42,14 +42,7 @@ export class LineRepositoryService {
       },
     };
 
-    await this.axiosLine
-      .post(path, data, config)
-      .then((res) => {
-        console.log('Loading response:', res.data);
-      })
-      .catch((err) => {
-        console.error('Loading error:', err);
-      });
+    await this.axiosLine.post(path, data, config);
   }
 
   async getMessageContent(messageId: string) {

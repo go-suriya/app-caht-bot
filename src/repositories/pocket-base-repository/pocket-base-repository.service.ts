@@ -40,9 +40,13 @@ export class PocketBaseRepositoryService implements OnModuleInit {
     filter: string,
     options?: RecordListOptions,
   ) {
-    return await this.pocketBase
-      .collection(collection)
-      .getFirstListItem(filter, options);
+    try {
+      return await this.pocketBase
+        .collection(collection)
+        .getFirstListItem(filter, options);
+    } catch (error) {
+      return null;
+    }
   }
 
   async getAllRecords(

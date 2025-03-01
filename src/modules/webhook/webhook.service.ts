@@ -42,17 +42,21 @@ export class WebhookService {
               const groupId = event.source?.groupId;
               const replyToken = event?.replyToken;
               const textMessage = event?.message?.text;
+
               await this.registerGroupUsecaseService.execute(
                 groupId,
                 replyToken,
                 textMessage,
               );
             }
+
+            // manage orders
           }
 
           if (eventMessage?.type === 'image') {
             const messageId = event?.message?.id;
             const replyToken = event?.replyToken;
+
             await this.receivePaymentSlipUsecaseService.execute(
               messageId,
               replyToken,
@@ -64,6 +68,7 @@ export class WebhookService {
           if (event?.source?.type === 'group') {
             const groupId = event.source?.groupId;
             const replyToken = event?.replyToken;
+
             await this.createSlipGroupUsecaseService.execute(
               groupId,
               replyToken,
